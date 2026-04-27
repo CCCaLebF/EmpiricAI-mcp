@@ -81,7 +81,7 @@ Or follow the manual steps below.
 ### 1. Install
 
 ```bash
-git clone https://github.com/tradesdontlie/tradingview-mcp.git
+git clone https://github.com/CCCaLebF/EmpiricAI-mcp.git
 cd tradingview-mcp
 npm install
 ```
