@@ -1,6 +1,6 @@
 /**
  * Comprehensive E2E tests for all 70 TradingView MCP tools.
- * Requires TradingView Desktop running with --remote-debugging-port=9222
+ * Requires TradingView Desktop running with --remote-debugging-port=9223
  *
  * Run: node --test tests/e2e.test.js
  *
@@ -65,11 +65,12 @@ describe('TradingView MCP — Full E2E (70 tools)', () => {
 
   before(async () => {
     try {
-      const targets = await CDP.List({ host: 'localhost', port: 9222 });
+      const CDP_PORT = Number(process.env.CDP_PORT) || 9223;
+      const targets = await CDP.List({ host: 'localhost', port: CDP_PORT });
       const chartTarget = targets.find(t => t.url && t.url.includes('tradingview.com/chart'));
       if (!chartTarget) throw new Error('No TradingView chart target found');
 
-      client = await CDP({ host: 'localhost', port: 9222, target: chartTarget.id });
+      client = await CDP({ host: 'localhost', port: CDP_PORT, target: chartTarget.id });
       await client.Runtime.enable();
       await client.Page.enable();
       await client.DOM.enable();
@@ -77,7 +78,7 @@ describe('TradingView MCP — Full E2E (70 tools)', () => {
       Input = client.Input;
       Page = client.Page;
     } catch (err) {
-      console.error('Cannot connect to TradingView. Make sure it is running with --remote-debugging-port=9222');
+      console.error('Cannot connect to TradingView. Make sure it is running with --remote-debugging-port=9223');
       process.exit(1);
     }
   });

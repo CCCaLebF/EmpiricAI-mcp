@@ -70,9 +70,9 @@ Gives your AI assistant eyes and hands on your own chart:
 
 ## Install with Claude Code
 
-Paste this into Claude Code and it will handle the rest:
+Paste this into Claude Code when the repo is first cloned:
 
-> Install the TradingView MCP server. Clone https://github.com/tradesdontlie/tradingview-mcp.git, run npm install, add it to my MCP config at ~/.claude/.mcp.json, and launch TradingView with the debug port. Then verify the connection with tv_health_check.
+> Install the TradingView MCP server. Clone https://github.com/CCCaLebF/EmpiricAI-mcp.git, run npm install, add it to my MCP config at ~/.claude/.mcp.json, and launch TradingView with the debug port. Then verify the connection with tv_health_check.
 
 Or follow the manual steps below.
 
@@ -88,14 +88,26 @@ npm install
 
 ### 2. Launch TradingView with CDP
 
-TradingView Desktop must be running with Chrome DevTools Protocol enabled on port 9222.
+TradingView Desktop must be running with Chrome DevTools Protocol enabled on port 9222 (default).
 
 **Mac:**
 ```bash
 ./scripts/launch_tv_debug_mac.sh
 ```
 
-**Windows:**
+**Windows (PowerShell — recommended):**
+```powershell
+Start-Process "C:\Program Files\WindowsApps\TradingView.Desktop_3.1.0.7818_x64__n534cwy3pjxzj\TradingView.exe" -ArgumentList "--remote-debugging-port=9223"
+```
+
+> [!NOTE]
+> The `WindowsApps` path includes the app version (`3.1.0.7818`). If TradingView has been updated, the folder name will change. Find the current path with:
+> ```powershell
+> Get-ChildItem "C:\Program Files\WindowsApps" -Filter "TradingView*" | Select-Object Name
+> ```
+> This command uses port `9223`. If your MCP config targets port `9222` (the default), change `--remote-debugging-port=9223` to `9222`, or update your MCP server's `CDP_PORT` env var to `9223`.
+
+**Windows (legacy batch script):**
 ```bash
 scripts\launch_tv_debug.bat
 ```
