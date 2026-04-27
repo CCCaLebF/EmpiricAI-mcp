@@ -1,0 +1,123 @@
+{
+  "strategy": {
+    "name": "ICT Killzone Sweep + HTF FVG",
+    "instrument": "CME_MINI:NQ1!",
+    "description": "Fade liquidity sweeps at killzone boundaries when price taps a higher timeframe fair value gap, entering on rejection block formation."
+  },
+
+  "sessions": {
+    "valid_killzones": [
+      { "name": "NY Open",  "time_et": "08:00–11:00" },
+      { "name": "NY PM",    "time_et": "13:00–15:00" }
+    ],
+    "note": "No trades outside of the two New York killzone windows above. London session is excluded."
+  },
+
+  "setup_conditions": {
+    "required": [
+      {
+        "condition": "liquidity_sweep",
+        "description": "Price sweeps above a prior killzone highs or below a prior killzone lows.",
+        "direction": {
+          "bullish": "sweep_below_low",
+          "bearish": "sweep_above_high"
+        }
+      },
+      {
+        "condition": "htf_fvg_tap",
+        "description": "After the sweep, price taps into a higher timeframe fair value gap.",
+        "valid_htf_timeframes": ["PLACEHOLDER — e.g. 1H, 4H, Daily"],
+        "fvg_type": {
+          "bullish_setup": "price_taps_bullish_fvg",
+          "bearish_setup": "price_taps_bearish_fvg"
+        }
+      },
+      {
+        "condition": "smt_divergence",
+        "description": "Correlated instrument fails to confirm NQ1!'s liquidity sweep, signaling the sweep is a smart money trap rather than a genuine breakout.",
+        "correlated_instrument": "CME_MINI:ES1!",
+        "how_to_check": "At the moment NQ1! sweeps its prior high/low, check whether ES1! also sweeps its corresponding prior high/low on the same bar or within the same killzone window.",
+        "divergence": {
+          "bullish_setup": "NQ1! sweeps below its prior low BUT ES1! fails to do so, and vice versa. Confirms NQ1! sweep is a liquidity grab.",
+          "bearish_setup": "NQ1! sweeps above its prior high BUT ES1! fails to do so, and vice versa. Confirms NQ1! sweep is a liquidity grab."
+        },
+        "note": "SMT divergence is an optional bonus — if both instruments confirm the sweep in the same direction, treat the move as a potential trend continuation and skip the fade setup."
+      }
+    ],
+    "logic": "ALL conditions must be satisfied before looking for entry trigger."
+  },
+
+  "entry": {
+    "trigger": "rejection_block",
+    "valid_timeframes": ["1m", "5m", "15m"],
+    "bullish_rejection_block": {
+      "candle_criteria": "Bullish candle close with a large bottom wick.",
+      "order_type": "limit",
+      "limit_placement": "2 ticks above the midpoint of the rejection block candle"
+    },
+    "bearish_rejection_block": {
+      "candle_criteria": "Bearish candle close with a large top wick.",
+      "order_type": "limit",
+      "limit_placement": "2 ticks below the midpoint of the rejection block candle"
+    },
+    "position_size": {
+      "contracts": "1 mini (NQ1!)",
+      "unit": "mini contracts"
+    }
+  },
+
+  "liquidity_targets": {
+    "note": "Target the nearest resting liquidity pool above (long) or below (short) price. Use the 1:6 RR as a floor — exit at the liquidity level if it's reached first.",
+    "buy_side_liquidity": {
+      "description": "Resting stop-losses above prior highs — target for bearish setups.",
+      "levels_in_priority_order": [
+        { "level": "session_high",        "examples": "London High, NY Open High, Asia High" },
+        { "level": "prior_day_high",       "examples": "PDH — previous daily candle high" },
+        { "level": "prior_week_high",      "examples": "PWH — previous weekly candle high" },
+        { "level": "equal_highs",          "examples": "Two or more swing highs at the same price (EQH)" },
+        { "level": "swing_high",           "examples": "Most recent prominent swing high on 15m or 1H" }
+      ]
+    },
+    "sell_side_liquidity": {
+      "description": "Resting stop-losses below prior lows — target for bullish setups.",
+      "levels_in_priority_order": [
+        { "level": "session_low",          "examples": "London Low, NY Open Low, Asia Low" },
+        { "level": "prior_day_low",        "examples": "PDL — previous daily candle low" },
+        { "level": "prior_week_low",       "examples": "PWL — previous weekly candle low" },
+        { "level": "equal_lows",           "examples": "Two or more swing lows at the same price (EQL)" },
+        { "level": "swing_low",            "examples": "Most recent prominent swing low on 15m or 1H" }
+      ]
+    },
+    "target_selection_rules": [
+      "Target the nearest buy-side or sell-side level that is at least 1:6 RR from entry.",
+      "If no liquidity level satisfies 1:6 RR, skip the trade — do not lower the RR requirement.",
+      "If two liquidity levels are equidistant, prefer the session-level over the swing-level."
+    ]
+  },
+
+  "risk_management": {
+    "stop_loss": {
+      "type": "static",
+      "size_points": "10–20",
+      "note": "Place stop on the opposite side of the rejection block wick."
+    },
+    "take_profit": {
+      "type": "fixed_rr",
+      "ratio": "1:6",
+      "calculation": "TP distance = SL distance × 6"
+    },
+    "examples": [
+      { "sl_points": 10, "tp_points": 60 },
+      { "sl_points": 15, "tp_points": 90 },
+      { "sl_points": 20, "tp_points": 120 }
+    ]
+  },
+
+  "invalidation": {
+    "rules": [
+      "Do not enter if price has already closed through the FVG (mitigated) without a rejection.",
+      "Cancel limit order if price has already reached into the rejection block zone and reversed without tapping into it.",
+      "Cancel limit order if price closes beyond the sweep wick before fill."
+    ]
+  }
+}
