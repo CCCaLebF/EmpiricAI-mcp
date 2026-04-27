@@ -68,7 +68,7 @@ Gives your AI assistant eyes and hands on your own chart:
 - **CLI access** — every MCP tool is also a `tv` CLI command, pipe-friendly with JSON output
 - **Launch TradingView** — auto-detect and launch with debug mode from any platform
 
-## Install with Claude Code
+## FIRST TIME SETUP with Claude Code
 
 Paste this into Claude Code when the repo is first cloned:
 
