@@ -64,7 +64,6 @@ Install the TradingView MCP server. Clone https://github.com/CCCaLebF/EmpiricAI-
 
 launch claude within the project directory
 ```powershell
-cd EmpiricAI-mcp
 claude
 ```
 
