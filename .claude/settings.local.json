@@ -13,5 +13,9 @@
       "mcp__tradingview__replay_trade",
       "mcp__tradingview__tv_launch"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "tradingview"
+  ],
+  "enableAllProjectMcpServers": true
 }

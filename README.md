@@ -125,6 +125,29 @@ scripts\launch_tv_debug.bat
 **Or use the MCP tool** (auto-detects your install):
 > "Use tv_launch to start TradingView in debug mode"
 
+You can also pass a port directly: *"Use tv_launch with port 9223"*
+
+### Port Diagnostics
+
+If `tv_health_check` fails, use these steps to verify the port.
+
+**Check if the port is in use (PowerShell):**
+```powershell
+Get-NetTCPConnection -LocalPort 9222
+```
+If TradingView is running with `--remote-debugging-port=9222`, you'll see an entry with `State: Listen` or `Established`.
+
+**Confirm which program owns the port** by opening this URL in your browser:
+```
+http://localhost:9222/json
+```
+If TradingView is running with CDP enabled, you'll see a JSON list of Chromium targets (pages/tabs). An empty response or connection error means TradingView was not launched with the debug flag — or is using a different port number.
+
+**Change the port `tv_launch` uses** by setting `CDP_PORT` in your MCP config (see step 3 below). The server defaults to port `9223`. Then launch TradingView on the matching port:
+```
+--remote-debugging-port=9223
+```
+
 ### 3. Add to Claude Code
 
 Add to your Claude Code MCP config (`~/.claude/.mcp.json` or project `.mcp.json`):
@@ -134,13 +157,16 @@ Add to your Claude Code MCP config (`~/.claude/.mcp.json` or project `.mcp.json`
   "mcpServers": {
     "tradingview": {
       "command": "node",
-      "args": ["/path/to/tradingview-mcp/src/server.js"]
+      "args": ["/path/to/tradingview-mcp/src/server.js"],
+      "env": {
+        "CDP_PORT": "9223"
+      }
     }
   }
 }
 ```
 
-Replace `/path/to/tradingview-mcp` with your actual path.
+Replace `/path/to/tradingview-mcp` with your actual path. The `CDP_PORT` env var sets which port the MCP server connects to (default: `9223`). It must match the `--remote-debugging-port` you used when launching TradingView.
 
 ### 4. Verify
 
