@@ -197,6 +197,17 @@ export async function launch({ port, kill_existing } = {}) {
     } catch { /* ignore */ }
   }
 
+  if (!tvPath && platform === 'win32') {
+    try {
+      const loc = execSync(
+        'powershell -NoProfile -Command "(Get-AppxPackage -Name \'*TradingView*\').InstallLocation"',
+        { timeout: 5000 }
+      ).toString().trim();
+      const candidate = `${loc}\\TradingView.exe`;
+      if (loc && existsSync(candidate)) tvPath = candidate;
+    } catch { /* not installed as a Store app */ }
+  }
+
   if (!tvPath && platform === 'darwin') {
     try {
       const found = execSync('mdfind "kMDItemFSName == TradingView.app" | head -1', { timeout: 5000 }).toString().trim();

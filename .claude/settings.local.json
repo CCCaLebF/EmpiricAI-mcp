@@ -10,7 +10,8 @@
       "mcp__tradingview__replay_start",
       "mcp__tradingview__replay_status",
       "mcp__tradingview__capture_screenshot",
-      "mcp__tradingview__replay_trade"
+      "mcp__tradingview__replay_trade",
+      "mcp__tradingview__tv_launch"
     ]
   }
 }
